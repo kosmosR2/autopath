@@ -3,7 +3,7 @@ distribution route depends on file path in express
 
 ##install
 
-    npm install autopath
+    npm install --save autopath
 
 ##example
 In `app.js` :
@@ -28,14 +28,16 @@ Then,files in `./router` will get all request.
 
 ###result for this example
 If you GET `/route/map`,then method `get` exported by `./router/route/map` will be called.
-And if you wants to add a param between `route` and `map`,for example `/route/233/map`,
-you shoud just match all your params in ignoreFunction.
+And if you wants to add a param between `route` and `map`,for example `/route/map/someObjectId`,
+<s>you should just match all your params in ignoreFunction.</s>
+you should export an Array called `params` in `map.js`.
+```
+exports.params = ['theKeyNameOfParam0'];
+```
+And then you can call your params by this in method `get`,`post`,`put`,or `delet` by this in `map.js`.
+```
+export.get = function(){
+    console.log(this['theKeyNameOfParam0']);// 'someObjectId'
+}
+```
 
-###ignoreFunction
-
-    var ignoreFunction = function(param){ 
-      return /^[0-9]*$/.test(param);
-    }
-
-This function will make autopath ignore all-number params when pathfinding().
-ObjectId of mongodb is ignore by default.Use your own ignoreFunction to pay attention to it again.

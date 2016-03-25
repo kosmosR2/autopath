@@ -1,59 +1,61 @@
-var readDir = require('read-lib');
-var checkForHexRegExp = new RegExp("^[0-9a-fA-F]{24}$");
-
+'use strict';
+const readDir = require('read-lib');
 
 module.exports = function(routeDirPath,dirPath,ignore){
-  var routers = readDir(routeDirPath,dirPath);
+  const routers = readDir(routeDirPath,dirPath);
+  const getter = getQueryRoute(routers);
   return function(req,res,next){
-    var paths = req.baseUrl.split('/');
- 	  paths = paths.filter(function(v){
+    const url = req.baseUrl || req.originalUrl;
+    const paths = url.split("?")[0].split('/').filter(v=>{
 		  if(v == ""){
 			  return false;
 		  }else{
 			  return true;
 		  }
 	  });
- 	  var method = req.method.toLowerCase();
-    var handler;
+ 	  const method = req.method.toLowerCase();
+    let handler;
+    let params;
     if(paths.length == 0){
       handler =  routers['index'];
     }else{
-      handler = getQueryRoute(ignore,routers)(paths);
+      let handlerAndParams = getter(paths);
+      console.log(handlerAndParams);
+      handler = handlerAndParams.pointer;
+      params = handlerAndParams.params;
     }
+
 	  if(handler && handler[method]){
-		  return handler[method](req,res,next);
+		  return handler[method].call(params,req,res,next);
 	  }else{
 		  return next();
 	  }
   };
 };
 
-function isObjectId(id){
-  if(id == null) return false;
-  if(typeof id == 'number')
-    return true;
-  if(typeof id == 'string') {
-    return id.length == 12 || (id.length == 24 && checkForHexRegExp.test(id));
-  }
-  return false;
-}
-
-function getQueryRoute(ignore,routers){
-  if(!ignore){
-    ignore = isObjectId;
-  }
-  return function(paths){
-	  var pointer = {};
+function getQueryRoute(routers){
+  return paths=>{
+    let pointer = {};
 	  pointer = routers;
-	  for(var x = 0;x < paths.length;x ++){
-      if(!ignore(paths[x])){
-		    pointer = pointer[paths[x]];
-		    if(!pointer){
-			    return false;
-		    }
+    const params = {};
+	  for(let x = 0;x < paths.length;x ++){
+      if(pointer.params){
+        pointer.params.forEach((v)=>{
+          params[v] = paths[x ++];
+        });
+        if(x >= paths.length){
+          break;
+        }
       }
+		  pointer = pointer[paths[x]];
+		  if(!pointer){
+			  return false;
+		  }
 	  }
-	  return pointer;
+	  return {
+      pointer:pointer,
+      params:params
+    };
   };
 }
 

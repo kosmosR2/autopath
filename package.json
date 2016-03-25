@@ -1,11 +1,11 @@
 {
-    "name": "autopath",
-    "version": "0.0.5",
-    "description": "export route with file path",
-    "author": "misasagi kosmos",
-    "repository": "git@github.com:kosmosR2/autopath.git",
-    "license": "GPLv3",
-    "dependencies":{
-        "read-lib":"~0.0.3"
-    }
+  "name": "autopath",
+  "version": "0.3.2",
+  "description": "export route with file path",
+  "author": "misasagi kosmos",
+  "repository": "git@github.com:kosmosR2/autopath.git",
+  "license": "GPLv3",
+  "dependencies": {
+    "read-lib": "^0.2.0"
+  }
 }
