@@ -5,7 +5,7 @@ module.exports = function(routeDirPath,dirPath,ignore){
   const routers = readDir(routeDirPath,dirPath);
   const getter = getQueryRoute(routers);
   return function(req,res,next){
-    const url = req.baseUrl || req.originalUrl;
+    const url = req.baseUrl || req.originalUrl || req.url;
     const paths = url.split("?")[0].split('/').filter(v=>{
 		  if(v == ""){
 			  return false;
@@ -20,7 +20,6 @@ module.exports = function(routeDirPath,dirPath,ignore){
       handler =  routers['index'];
     }else{
       let handlerAndParams = getter(paths);
-      console.log(handlerAndParams);
       handler = handlerAndParams.pointer;
       params = handlerAndParams.params;
     }
